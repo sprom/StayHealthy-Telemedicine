@@ -64,14 +64,41 @@ const Login = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Login:', formData);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', formData.email);
-      setIsSubmitting(false);
-      navigate(ROUTES.HOME);
-    }, 1000);
+    // Make real API call to login endpoint
+    fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Login failed');
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('isLoggedIn', 'true');
+          if (formData.rememberMe) {
+            localStorage.setItem('rememberMe', 'true');
+            localStorage.setItem('userEmail', formData.email);
+          }
+          setIsSubmitting(false);
+          navigate(ROUTES.HOME);
+        } else {
+          throw new Error(data.message || 'Login failed');
+        }
+      })
+      .catch((error) => {
+        console.error('Login error:', error);
+        setErrors({ submit: 'Invalid email or password' });
+        setIsSubmitting(false);
+      });
   };
 
   const handleFocus = (e) => {

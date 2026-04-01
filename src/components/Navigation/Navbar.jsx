@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../utils/Constants';
 import Button from '../Common/Button';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is logged in
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -13,6 +21,18 @@ const Navbar = () => {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    // Clear authentication data
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('rememberMe');
+    setIsLoggedIn(false);
+    closeMenu();
+    navigate(ROUTES.HOME);
   };
 
   return (
@@ -52,24 +72,36 @@ const Navbar = () => {
         </ul>
 
         <div className="nav-buttons">
-          <Link to={ROUTES.LOGIN}>
+          {isLoggedIn ? (
             <Button
-              variant="outline"
+              variant="danger"
               size="sm"
-              onClick={closeMenu}
+              onClick={handleLogout}
             >
-              Login
+              Logout
             </Button>
-          </Link>
-          <Link to={ROUTES.SIGNUP}>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={closeMenu}
-            >
-              Sign Up
-            </Button>
-          </Link>
+          ) : (
+            <>
+              <Link to={ROUTES.LOGIN}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={closeMenu}
+                >
+                  Login
+                </Button>
+              </Link>
+              <Link to={ROUTES.SIGNUP}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={closeMenu}
+                >
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <div className="hamburger" onClick={toggleMenu}>

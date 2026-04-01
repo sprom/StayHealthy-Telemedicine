@@ -3,7 +3,7 @@ import Card from '../Common/Card';
 import Button from '../Common/Button';
 import './Appointments.css';
 
-const DoctorCard = ({ doctor, onSelectDoctor }) => {
+const DoctorCard = ({ doctor, onSelectDoctor, onCancelAppointment, hasAppointment = false }) => {
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -48,16 +48,28 @@ const DoctorCard = ({ doctor, onSelectDoctor }) => {
           </span>
         </div>
 
-        {/* Action Button */}
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={onSelectDoctor}
-          disabled={!doctor.available}
-          className="book-button"
-        >
-          {doctor.available ? 'Book Appointment' : 'Notify Me'}
-        </Button>
+        {/* Action Buttons */}
+        <div className="button-group">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={onSelectDoctor}
+            disabled={!doctor.available}
+            className="book-button"
+          >
+            {doctor.available ? 'Book Appointment' : 'Notify Me'}
+          </Button>
+          {hasAppointment && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={onCancelAppointment}
+              className="cancel-button"
+            >
+              Cancel Appointment
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );

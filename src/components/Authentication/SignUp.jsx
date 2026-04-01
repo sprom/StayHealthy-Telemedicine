@@ -97,14 +97,40 @@ const SignUp = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Form submitted:', formData);
-      // Store user data (in real app, this would be sent to backend)
-      localStorage.setItem('user', JSON.stringify(formData));
-      setIsSubmitting(false);
-      navigate(ROUTES.HOME);
-    }, 1000);
+    // Make real API call to registration endpoint
+    fetch('http://localhost:3000/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.userType,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Registration failed');
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('isLoggedIn', 'true');
+          setIsSubmitting(false);
+          navigate(ROUTES.HOME);
+        } else {
+          throw new Error(data.message || 'Registration failed');
+        }
+      })
+      .catch((error) => {
+        console.error('Registration error:', error);
+        setErrors({ submit: 'Registration failed. Please try again.' });
+        setIsSubmitting(false);
+      });
   };
 
   const handleFocus = (e) => {
